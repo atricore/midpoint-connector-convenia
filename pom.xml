@@ -35,7 +35,15 @@
         <connectorPackage>com.atricore.iam.midpoint.connector.convenia</connectorPackage>
         <connectorClass>ConveniaConnector</connectorClass>
         <surefire.args>-Xms1024m -Xmx4096m --add-exports java.management/sun.management=ALL-UNNAMED</surefire.args>
-    </properties>
+        </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>midPoint Connector for Convenia - GitHub Packages</name>
+            <url>https://maven.pkg.github.com/atricore/midpoint-connector-convenia</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
         <repository>
@@ -138,4 +146,3 @@
 
     </dependencies>
 </project>
-
