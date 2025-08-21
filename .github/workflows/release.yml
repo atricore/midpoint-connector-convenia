@@ -100,7 +100,7 @@ jobs:
       - name: Prepare release artifacts
         run: |
           mkdir -p release-artifacts
-          cp target/connector-gcp-*.jar release-artifacts/
+          cp target/connector-convenia-*.jar release-artifacts/
           cp README.md release-artifacts/
           cp LICENSE release-artifacts/
           if [ -d "examples" ]; then
@@ -129,7 +129,7 @@ jobs:
             ### Installation
 
             #### Option 1: Download JAR (Traditional)
-            1. Download the `connector-gcp-*.jar` file from the assets below
+            1. Download the `connector-convenia-*.jar` file from the assets below
             2. Copy it to your midPoint's `icf-connectors` directory
             3. Restart midPoint
 
@@ -145,7 +145,7 @@ jobs:
 
             <dependency>
                 <groupId>YOUR_GROUP_ID</groupId>
-                <artifactId>connector-gcp</artifactId>
+                <artifactId>connector-convenia</artifactId>
                 <version>${{ steps.version.outputs.version }}</version>
             </dependency>
             ```
@@ -168,7 +168,7 @@ jobs:
             - Google Cloud SDK v26.34.0
 
             ### Files in this release
-            - `connector-gcp-*.jar` - Main connector JAR file
+            - `connector-convenia-*.jar` - Main connector JAR file
             - `README.md` - Documentation
             - `LICENSE` - License information
             - `*.xml` - Configuration examples (if available)
