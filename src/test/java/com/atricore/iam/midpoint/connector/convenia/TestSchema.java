@@ -63,7 +63,7 @@ public class TestSchema {
     }
 
     protected void validateAccount(ObjectClassInfo c) {
-        assert c.getAttributeInfo().size() == 17 : "invalid number of attributes " + c.getAttributeInfo().size();
+        assert c.getAttributeInfo().size() == 18 : "invalid number of attributes " + c.getAttributeInfo().size();
 
         AtomicBoolean found = new AtomicBoolean(false);
 
