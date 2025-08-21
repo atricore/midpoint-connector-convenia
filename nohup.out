@@ -1,0 +1,39 @@
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+2024-05-21 09:49:01,196 [   5162]   WARN - #c.i.u.j.JBCefApp - JCEF: minimum supported CEF major version is 119, current is 111 (Use JBR bundled with the IDE)
+2024-05-21 09:49:03,775 [   7741]   WARN - #c.i.o.a.i.ActionUpdater - 4141 ms total to grab EDT 4 times to expand ToolWindowHeader$2@ToolwindowTitle (com.intellij.toolWindow.ToolWindowHeader$2). Use `ActionUpdateThread.BGT`.
+2024-05-21 09:49:09,833 [  13799]   WARN - #c.i.o.m.LanguageLevelUtil - File not found: api23.txt
+2024-05-21 09:49:11,221 [  15187]   WARN - #c.i.u.x.Binding - No accessors for org.jetbrains.security.package.Package. This means that state class cannot be serialized properly. Please see https://jb.gg/ij-psoc
+2024-05-21 09:49:13,863 [  17829]   WARN - #c.i.u.x.Binding - No accessors for org.jetbrains.kotlin.cli.common.arguments.InternalArgument. This means that state class cannot be serialized properly. Please see https://jb.gg/ij-psoc
+2024-05-21 09:49:57,262 [  61228]   WARN - #c.i.u.x.Binding - No accessors for com.intellij.platform.feedback.impl.state.DontShowAgainFeedbackState. This means that state class cannot be serialized properly. Please see https://jb.gg/ij-psoc
+2024-05-21 09:49:57,262 [  61228]   WARN - #c.i.u.x.Binding - No accessors for com.intellij.platform.feedback.impl.state.CommonFeedbackSurveysState. This means that state class cannot be serialized properly. Please see https://jb.gg/ij-psoc
+2024-05-21 10:07:07,827 [1091793]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 13:07:07.827411 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 10:07:08,908 [1092874]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 13:07:08.905377 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 10:07:09,070 [1093036]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 13:07:09.69913 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 10:07:09,725 [1093691]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 13:07:09.725190 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 10:07:09,896 [1093862]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 13:07:09.896641 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 10:07:10,399 [1094365]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 13:07:10.398899 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 10:07:10,645 [1094611]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 13:07:10.645521 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 10:07:11,205 [1095171]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 13:07:11.205250 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 10:13:28,105 [1472071]   WARN - #c.i.e.p.OSProcessHandler - Process has been already terminated: setsid /nix/store/apl2ibxqrxbbj6z79nfgv892999z1zyv-git-2.44.0/bin/git -c credential.helper= -c core.quotepath=false -c log.showSignature=false log HEAD --branches --remotes --max-count=2000 --pretty=format:%x01%x01%H%x02%x02%P%x02%x02%ct%x02%x02%cn%x02%x02%ce%x02%x02%an%x02%x02%at%x02%x02%ae%x02%x02%s%x02%x02%b%x02%x02%B%x02%x02%d%x03%x03 --encoding=UTF-8 --decorate=full --
+2024-05-21 15:06:46,328 [19070294]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 18:06:46.327618 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 15:06:46,811 [19070777]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 18:06:46.811273 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 15:06:47,772 [19071738]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 18:06:47.770004 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 15:06:48,217 [19072183]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 18:06:48.217731 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 15:06:48,436 [19072402]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 18:06:48.436383 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 15:06:49,421 [19073387]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 18:06:49.421699 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+
+2024-05-21 15:06:49,943 [19073909]   WARN - #o.j.c.f.l.l.LocalGeneratorsCache - 2024-05-21 18:06:49.943197 [onnx_native_service.cpp:103:init_log_probs] got an exception 'llama_decode failed, error code: 1' during execution
+

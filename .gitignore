@@ -1,0 +1,6 @@
+.direnv
+.idea
+.project
+.classpath
+.settings
+target
