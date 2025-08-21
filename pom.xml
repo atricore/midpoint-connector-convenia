@@ -26,7 +26,7 @@
 
     <groupId>com.atricore.iam.evolveum.connector</groupId>
     <artifactId>connector-convenia</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Convenia Midpoint Connector</name>
