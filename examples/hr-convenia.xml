@@ -1,0 +1,930 @@
+<resource xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+          xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+          xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3"
+          xmlns:org="http://midpoint.evolveum.com/xml/ns/public/common/org-3"
+          xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
+          xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
+          xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          oid="10000000-0000-0000-0000-000000000201">
+    <name>Convenia : Recursos Humanos</name>
+    <description>My Company RH</description>
+
+    <connectorRef relation="org:default" type="c:ConnectorType">
+        <!-- ConnId com.atricore.iam.midpoint.connector.convenia.ConveniaConnector v1.0.1-SNAPSHOT -->
+        <filter>
+            <q:text>c:connectorType = "com.atricore.iam.midpoint.connector.convenia.ConveniaConnector" and c:connectorVersion = "1.2.2"</q:text>
+        </filter>
+    </connectorRef>
+
+    <connectorConfiguration xmlns:icfc="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/connector-schema-3">
+        <icfc:configurationProperties
+                xmlns:convenia="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.atricore.iam.evolveum.connector.connector-convenia/com.atricore.iam.midpoint.connector.convenia.ConveniaConnector">
+            <convenia:privateToken>
+                <t:clearValue>changeme</t:clearValue>
+            </convenia:privateToken>
+            <convenia:orgUUID>changeme</convenia:orgUUID>
+            <convenia:orgName>MyOrg</convenia:orgName>
+            <!-- if you created custom fields in convenia, you can use them in midPoint -->
+            <convenia:customFields>Tribo,Squad</convenia:customFields>
+            <!-- required due to API Limitations -->
+            <convenia:enrichEmployeeData>true</convenia:enrichEmployeeData>
+        </icfc:configurationProperties>
+    </connectorConfiguration>
+
+    <schemaHandling>
+        <!-- account/default -->
+        <objectType>
+            <kind>account</kind>
+            <intent>default</intent>
+            <displayName>Default Account</displayName>
+            <default>true</default>
+            <objectClass>ri:AccountObjectClass</objectClass>
+
+            <delineation>
+                <filter>
+                    <!-- do not import 'users' that are not ready -->
+                    <q:description>Everyone with non-empty email and non-empty hiring_date is an employee</q:description>
+                    <q:and>
+                        <q:not>
+                            <q:equal>
+                                <q:path>attributes/hiring_date</q:path>
+                            </q:equal>
+                        </q:not>
+                        <q:not>
+                            <q:equal>
+                                <q:path>attributes/email</q:path>
+                            </q:equal>
+                        </q:not>
+                    </q:and>
+                </filter>
+            </delineation>
+
+            <!-- icfs:name -->
+            <attribute>
+                <c:ref>icfs:name</c:ref>
+                <displayName>Login</displayName>
+                <limitations>
+                    <access>
+                        <read>true</read>
+                        <add>false</add>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+
+                <inbound>
+                    <name>name</name>
+                    <target>
+                        <c:path>name</c:path>
+                    </target>
+                </inbound>
+
+            </attribute>
+
+            <!-- icfs:uid -->
+            <attribute>
+                <c:ref>icfs:uid</c:ref>
+                <displayName>UID</displayName>
+                <limitations>
+                    <access>
+                        <read>true</read>
+                        <add>false</add>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+
+            </attribute>
+
+            <!-- ri:job -->
+            <attribute>
+                <ref>ri:job</ref>
+                <displayName>Job</displayName>
+                <limitations>
+                    <minOccurs>1</minOccurs>
+                    <maxOccurs>1</maxOccurs>
+                    <access>
+                        <add>true</add>
+                        <read>true</read>
+                        <modify>true</modify>
+                    </access>
+                </limitations>
+                <limitations>
+                    <layer>presentation</layer>
+                    <access>
+                        <add>false</add>
+                        <read>true</read>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+            </attribute>
+
+            <!-- ri:department_name -->
+            <attribute>
+                <ref>ri:department_name</ref>
+                <displayName>Department Name</displayName>
+            </attribute>
+
+            <!-- ri:department -->
+            <attribute>
+                <ref>ri:department</ref>
+                <displayName>Department</displayName>
+                <limitations>
+                    <minOccurs>1</minOccurs>
+                    <maxOccurs>1</maxOccurs>
+                    <access>
+                        <add>true</add>
+                        <read>true</read>
+                        <modify>true</modify>
+                    </access>
+                </limitations>
+                <limitations>
+                    <layer>presentation</layer>
+                    <access>
+                        <add>false</add>
+                        <read>true</read>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+
+                <inbound>
+                    <name>org-unit-uuid</name>
+                    <strength>strong</strength>
+                    <authoritative>true</authoritative>
+                    <target>
+                        <set>
+                            <predefined>all</predefined>
+                        </set>
+                        <path>$focus/organizationalUnit</path>
+                    </target>
+                </inbound>
+
+                <inbound>
+                    <strength>strong</strength>
+                    <name>org-manager</name>
+                    <description>Org unit assignment as manager</description>
+                    <!--authoritative>true</authoritative-->
+                    <source>
+                        <path>$projection/attributes/department</path>
+                    </source>
+                    <source>
+                        <path>$projection/attributes/elider</path>
+                    </source>
+                    <expression>
+                        <assignmentTargetSearch>
+
+                            <targetType>c:OrgType</targetType>
+                            <assignmentProperties>
+                                <relation>org:manager</relation>
+                                <subtype>HR-ORG</subtype>
+                            </assignmentProperties>
+
+                            <filter>
+                                <q:equal>
+                                    <q:path>c:identifier</q:path>
+                                    <expression>
+                                        <script>
+                                            <includeNullInputs>false</includeNullInputs>
+                                            <code>
+                                                // Return the department
+                                                return department != null  ? department : "__DO_NOT_MATCH__"
+                                            </code>
+                                        </script>
+                                    </expression>
+                                </q:equal>
+                            </filter>
+
+                        </assignmentTargetSearch>
+
+                    </expression>
+                    <target>
+                        <path>$focus/assignment</path>
+                        <set>
+                            <condition>
+                                <script>
+                                    <code>
+                                        return input.subtype.contains('HR-ORG')
+                                    </code>
+                                </script>
+                            </condition>
+                        </set>
+                    </target>
+                </inbound>
+
+            </attribute>
+
+            <!-- ri:first_name -->
+            <attribute>
+                <ref>ri:first_name</ref>
+                <displayName>Name</displayName>
+                <inbound>
+                    <name>given-name</name>
+                    <strength>strong</strength>
+                    <target>
+                        <path>$focus/givenName</path>
+                    </target>
+                </inbound>
+            </attribute>
+
+            <!-- ri:last_name -->
+            <attribute>
+                <ref>ri:last_name</ref>
+                <displayName>Last Name</displayName>
+                <inbound>
+                    <name>last-name</name>
+                    <strength>strong</strength>
+                    <target>
+                        <path>$focus/familyName</path>
+                    </target>
+                </inbound>
+
+                <inbound>
+                    <name>full-name</name>
+                    <source>
+                        <path>$projection/attributes/first_name</path>
+                    </source>
+                    <source>
+                        <path>$projection/attributes/last_name</path>
+                    </source>
+                    <expression>
+                        <script>
+                            <code>
+                                if ( first_name == null &amp;&amp; last_name == null ) {
+                                    return null
+                                }
+                                if ( last_name == null ) {
+                                    return first_name
+                                }
+                                if ( first_name == null ) {
+                                    return last_name
+                                }
+                                first_name + ' ' + last_name
+                            </code>
+                        </script>
+                    </expression>
+                    <strength>strong</strength>
+                    <target>
+                        <path>$focus/fullName</path>
+                    </target>
+
+                </inbound>
+
+            </attribute>
+
+            <!-- email -->
+            <attribute>
+                <ref>ri:email</ref>
+                <displayName>Email</displayName>
+                <limitations>
+                    <minOccurs>1</minOccurs>
+                    <maxOccurs>1</maxOccurs>
+                    <access>
+                        <add>true</add>
+                        <read>true</read>
+                        <modify>true</modify>
+                    </access>
+                </limitations>
+                <limitations>
+                    <layer>presentation</layer>
+                    <access>
+                        <add>false</add>
+                        <read>true</read>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+                <inbound>
+                    <name>email-address</name>
+                    <target>
+                        <path>$focus/emailAddress</path>
+                    </target>
+                    <use>correlation</use>
+                </inbound>
+            </attribute>
+
+            <!-- nivel -->
+            <attribute>
+                <ref>ri:nivel</ref>
+                <displayName>Nível</displayName>
+                <limitations>
+                    <minOccurs>1</minOccurs>
+                    <maxOccurs>1</maxOccurs>
+                    <access>
+                        <add>true</add>
+                        <read>true</read>
+                        <modify>true</modify>
+                    </access>
+                </limitations>
+                <limitations>
+                    <layer>presentation</layer>
+                    <access>
+                        <add>false</add>
+                        <read>true</read>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+                <inbound>
+                    <name>nivel</name>
+                    <strength>strong</strength>
+                    <target>
+                        <path>$focus/extension/nivel</path>
+                    </target>
+                </inbound>
+            </attribute>
+
+            <!-- squad -->
+            <attribute>
+                <ref>ri:squad</ref>
+                <displayName>Squad</displayName>
+                <limitations>
+                    <minOccurs>0</minOccurs>
+                    <maxOccurs>1</maxOccurs>
+                    <access>
+                        <add>true</add>
+                        <read>true</read>
+                        <modify>true</modify>
+                    </access>
+                </limitations>
+                <limitations>
+                    <layer>presentation</layer>
+                    <access>
+                        <add>false</add>
+                        <read>true</read>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+                <inbound>
+                    <name>set-squad</name>
+                    <strength>strong</strength>
+                    <target>
+                        <path>$focus/extension/squad</path>
+                    </target>
+                </inbound>
+
+                <inbound>
+                    <name>squad-org-unit</name>
+                    <source>
+                        <path>$focus/extension/squad</path>
+                    </source>
+                    <expression>
+                        <assignmentTargetSearch>
+                            <targetType>c:OrgType</targetType>
+                            <includeNullInputs>false</includeNullInputs>
+                            <assignmentProperties>
+                                <subtype>HR-SQUAD-ORG</subtype>
+                            </assignmentProperties>
+                            <filter>
+                                <q:equal>
+                                    <q:path>identifier</q:path>
+                                    <expression>
+                                        <script>
+                                            <code>
+                                                // We assume we have a one-level org unit definitions, all depend on A3C
+                                                var r_squad = 's-' + basic.norm('' + squad)
+                                                log.info(">>> squad-org: " + r_squad)
+                                                return r_squad
+                                            </code>
+                                        </script>
+                                    </expression>
+                                </q:equal>
+                            </filter>
+
+                        </assignmentTargetSearch>
+                    </expression>
+                    <target>
+                        <path>assignment</path>
+                        <set>
+                            <condition>
+                                <script>
+                                    <code>
+                                        return input.subtype.contains('HR-SQUAD-ORG')
+                                    </code>
+                                </script>
+                            </condition>
+                        </set>
+                    </target>
+                </inbound>
+            </attribute>
+
+            <!-- tribo -->
+            <attribute>
+                <ref>ri:tribo</ref>
+                <displayName>Tribo</displayName>
+                <limitations>
+                    <minOccurs>1</minOccurs>
+                    <maxOccurs>1</maxOccurs>
+                    <access>
+                        <add>true</add>
+                        <read>true</read>
+                        <modify>true</modify>
+                    </access>
+                </limitations>
+                <limitations>
+                    <layer>presentation</layer>
+                    <access>
+                        <add>false</add>
+                        <read>true</read>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+
+                <!-- tribo, attr -->
+                <inbound>
+                    <name>set-tribo</name>
+                    <strength>strong</strength>
+                    <target>
+                        <path>$focus/extension/tribo</path>
+                    </target>
+                </inbound>
+
+                <!-- tribo, managers -->
+                <inbound>
+                    <strength>strong</strength>
+                    <name>tribo-org-unit-manager</name>
+                    <description>Tribo Org unit assignment as manager</description>
+                    <!--authoritative>true</authoritative-->
+                    <source>
+                        <path>$focus/extension/tribo</path>
+                    </source>
+                    <source>
+                        <path>$focus/extension/nivel</path>
+                    </source>
+                    <source>
+                        <path>$projection/attributes/elider</path>
+                    </source>
+                    <expression>
+                        <assignmentTargetSearch>
+
+                            <targetType>c:OrgType</targetType>
+                            <assignmentProperties>
+                                <relation>org:manager</relation>
+                                <subtype>HR-TRIBO-ORG</subtype>
+                            </assignmentProperties>
+
+                            <filter>
+                                <q:equal>
+                                    <q:path>c:identifier</q:path>
+                                    <expression>
+                                        <script>
+                                            <includeNullInputs>false</includeNullInputs>
+                                            <code>
+                                                var r_tribo = 't-' + basic.norm('' + tribo)
+                                                var r_nivel = basic.norm('' + nivel)
+
+                                                log.info(">>> tribo-norm: " + r_tribo)
+                                                log.info(">>> nivel-mngr: " + r_nivel)
+
+                                                def isManager = (
+                                                        (elider != null &amp;&amp; elider.toLowerCase().equals("sim")) &amp;&amp; (r_nivel.toLowerCase().equals("gerente"))
+                                                )
+
+                                                log.info(">>> manager: " + isManager)
+
+                                                // Return the tribo only if manager is true
+                                                return r_tribo != null &amp;&amp; isManager == true ? r_tribo : "__DO_NOT_MATCH__"
+                                            </code>
+                                        </script>
+                                    </expression>
+                                </q:equal>
+                            </filter>
+
+                        </assignmentTargetSearch>
+
+                    </expression>
+                    <target>
+                        <path>$focus/assignment</path>
+                        <set>
+                            <condition>
+                                <script>
+                                    <code>
+                                        // if assignment contains subtype HR we control it
+                                        return input.subtype.contains('HR-TRIBO-ORG')
+                                        //log.info(">>> target:" + input.targetRef.getOid() + " in set : " + inRange)
+                                        //return inRange
+                                    </code>
+                                </script>
+                            </condition>
+                        </set>
+                    </target>
+                </inbound>
+
+                <!-- tribo, default -->
+                <inbound>
+                    <name>tribo-org-unit-default</name>
+                    <source>
+                        <path>$focus/extension/tribo</path>
+                    </source>
+                    <source>
+                        <path>$focus/extension/nivel</path>
+                    </source>
+                    <source>
+                        <path>$projection/attributes/elider</path>
+                    </source>
+                    <expression>
+                        <assignmentTargetSearch>
+                            <targetType>c:OrgType</targetType>
+                            <includeNullInputs>false</includeNullInputs>
+                            <assignmentProperties>
+                                <subtype>HR-TRIBO-ORG</subtype>
+                            </assignmentProperties>
+                            <filter>
+                                <q:equal>
+                                    <q:path>identifier</q:path>
+                                    <expression>
+                                        <script>
+                                            <code>
+                                                var r_tribo = 't-' + basic.norm('' + tribo)
+                                                log.info(">>> tribo-org: " + r_tribo)
+                                                // Return the tribo
+                                                return r_tribo != null ? r_tribo : "__DO_NOT_MATCH__"
+
+                                            </code>
+                                        </script>
+                                    </expression>
+                                </q:equal>
+                            </filter>
+
+                        </assignmentTargetSearch>
+                    </expression>
+                    <target>
+                        <path>assignment</path>
+                        <set>
+                            <condition>
+                                <script>
+                                    <code>
+                                        return input.subtype.contains('HR-TRIBO-ORG')
+                                    </code>
+                                </script>
+                            </condition>
+                        </set>
+                    </target>
+                </inbound>
+
+            </attribute>
+
+            <!-- hiring date, mapped to activation valid from -->
+            <attribute>
+                <ref>ri:hiring_date</ref>
+                <displayName>Data de admissão</displayName>
+                <inbound>
+                    <name>get-validFrom</name>
+                    <lifecycleState>active</lifecycleState>
+                    <strength>weak</strength>
+
+                    <target>
+                        <name>validFrom</name>
+                        <path>activation/validFrom</path>
+                    </target>
+
+                    <condition>
+                        <script>
+                            <code>input != null</code>
+                        </script>
+                    </condition>
+                </inbound>
+            </attribute>
+
+            <!-- dismissal date -->
+            <attribute>
+                <ref>ri:dismissal_date</ref>
+                <displayName>Data de desligamento</displayName>
+                <inbound>
+                    <name>get-validTo</name>
+                    <lifecycleState>active</lifecycleState>
+                    <strength>weak</strength>
+
+                    <target>
+                        <name>validTo</name>
+                        <path>activation/validTo</path>
+                    </target>
+
+                    <condition>
+                        <script>
+                            <code>input != null</code>
+                        </script>
+                    </condition>
+                </inbound>
+            </attribute>
+
+            <synchronization>
+                <reaction>
+                    <situation>unmatched</situation>
+                    <actions>
+                        <addFocus/>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <actions>
+                        <link/>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <actions>
+                        <inactivateFocus/>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>linked</situation>
+                    <actions>
+                        <synchronize/>
+                    </actions>
+                </reaction>
+            </synchronization>
+
+            <correlation>
+                <correlators>
+                    <items>
+                        <name>account-correlation-by-email</name>
+                        <enabled>true</enabled>
+                        <item>
+                            <ref>name</ref>
+                        </item>
+                    </items>
+                </correlators>
+            </correlation>
+
+            <!-- generate a password randomly, only if not pressent -->
+            <credentials>
+                <password>
+                    <inbound>
+                        <strength>weak</strength>
+                        <expression>
+                            <generate>
+                            </generate>
+                        </expression>
+                    </inbound>
+                </password>
+            </credentials>
+
+        </objectType>
+
+        <!-- generic/orgunit -->
+        <objectType>
+            <kind>generic</kind>
+            <intent>orgunit</intent>
+
+            <displayName>Department</displayName>
+
+            <default>false</default>
+            <delineation>
+                <objectClass>ri:Custom__DEPARTMENT__ObjectClass</objectClass>
+            </delineation>
+            <focus>
+                <type>c:OrgType</type>
+            </focus>
+
+            <!-- name -->
+            <attribute>
+                <c:ref>icfs:name</c:ref>
+                <displayName>Name</displayName>
+                <limitations>
+                    <access>
+                        <read>true</read>
+                        <add>false</add>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+                <!-- CASE Sensitive !!!-->
+                <inbound>
+                    <name>name</name>
+                    <strength>strong</strength>
+                    <target>
+                        <c:path>name</c:path>
+                    </target>
+                </inbound>
+
+                <inbound>
+                    <name>display-name</name>
+                    <strength>strong</strength>
+                    <target>
+                        <c:path>displayName</c:path>
+                    </target>
+                </inbound>
+
+            </attribute>
+
+            <!-- parent  -->
+            <attribute>
+                <ref>ri:parent</ref>
+                <displayName>Parent</displayName>
+                <inbound>
+                    <name>parent-org-unit</name>
+                    <source>
+                        <path>$projection/attributes/parent</path>
+                    </source>
+                    <expression>
+                        <assignmentTargetSearch>
+                            <targetType>c:OrgType</targetType>
+                            <includeNullInputs>false</includeNullInputs>
+                            <assignmentProperties>
+                                <subtype>HR-ORG</subtype>
+                            </assignmentProperties>
+                            <filter>
+                                <q:equal>
+                                    <q:path>identifier</q:path>
+                                    <expression>
+                                        <script>
+                                            <code>
+                                                // We assume we have a one-level org unit definitions, all depend on A3C
+                                                return parent
+                                            </code>
+                                        </script>
+                                    </expression>
+                                </q:equal>
+                            </filter>
+
+                        </assignmentTargetSearch>
+                    </expression>
+                    <target>
+                        <path>assignment</path>
+                        <set>
+                            <condition>
+                                <script>
+                                    <code>
+                                        return input.subtype.contains('HR-ORG')
+                                    </code>
+                                </script>
+                            </condition>
+                        </set>
+                    </target>
+                </inbound>
+            </attribute>
+
+            <!-- uid -->
+            <attribute>
+                <c:ref>icfs:uid</c:ref>
+                <displayName>Entry UUID</displayName>
+                <limitations>
+                    <access>
+                        <read>true</read>
+                        <add>false</add>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+                <!-- CASE Sensitive !!!-->
+                <inbound>
+                    <name>identifier</name>
+                    <target>
+                        <path>$focus/identifier</path>
+                    </target>
+                </inbound>
+                <inbound>
+                    <name>department-archetype</name>
+                    <expression>
+                        <value>
+                            <targetRef oid="10000000-0000-0000-0000-000000000301" type="ArchetypeType"/>
+                            <!-- department archetype -->
+                        </value>
+                    </expression>
+                    <target>
+                        <path>$focus/assignment</path>
+                    </target>
+                </inbound>
+            </attribute>
+
+            <synchronization>
+                <reaction>
+                    <situation>unmatched</situation>
+                    <actions>
+                        <addFocus/>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <actions>
+                        <link/>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <actions>
+                        <inactivateFocus/>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>linked</situation>
+                    <actions>
+                        <synchronize/>
+                    </actions>
+                </reaction>
+            </synchronization>
+
+            <!-- correlation based on name -->
+            <correlation>
+                <correlators>
+                    <items>
+                        <name>name</name>
+                        <enabled>true</enabled>
+                        <item>
+                            <ref>name</ref>
+                        </item>
+                    </items>
+                </correlators>
+            </correlation>
+
+            <!-- entity is unmanaged -->
+            <defaultOperationPolicy>
+                <policyRef oid="00000000-0000-0000-0000-000000000805" relation="default" type="c:MarkType">
+                    <!-- Unmanaged -->
+                </policyRef>
+            </defaultOperationPolicy>
+
+        </objectType>
+
+        <!-- entitlement/job -->
+        <objectType>
+            <kind>entitlement</kind>
+            <intent>job</intent>
+            <default>true</default>
+            <displayName>Cargo</displayName>
+            <delineation>
+                <objectClass>ri:Custom__JOB__ObjectClass</objectClass>
+            </delineation>
+            <focus>
+                <type>c:RoleType</type>
+            </focus>
+
+            <!-- name -->
+            <attribute>
+                <c:ref>icfs:name</c:ref>
+                <displayName>Name</displayName>
+                <limitations>
+                    <access>
+                        <read>true</read>
+                        <add>false</add>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+
+                <!-- CASE Sensitive !!!-->
+                <inbound>
+                    <name>name</name>
+                    <strength>strong</strength>
+                    <target>
+                        <c:path>name</c:path>
+                    </target>
+
+                </inbound>
+
+            </attribute>
+
+            <!-- uid -->
+            <attribute>
+                <c:ref>icfs:uid</c:ref>
+                <displayName>UID</displayName>
+                <limitations>
+                    <access>
+                        <read>true</read>
+                        <add>false</add>
+                        <modify>false</modify>
+                    </access>
+                </limitations>
+                <!-- CASE Sensitive !!!-->
+            </attribute>
+
+            <synchronization>
+                <reaction>
+                    <situation>unmatched</situation>
+                    <actions>
+                        <addFocus/>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <actions>
+                        <link/>
+                    </actions>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <actions>
+                        <inactivateFocus/>
+                    </actions>
+                </reaction>
+
+                <reaction>
+                    <situation>linked</situation>
+                    <actions>
+                        <synchronize/>
+                    </actions>
+                </reaction>
+            </synchronization>
+
+            <!-- entity is unmanaged -->
+            <defaultOperationPolicy>
+                <policyRef oid="00000000-0000-0000-0000-000000000805" relation="default" type="c:MarkType">
+                    <!-- Unmanaged -->
+                </policyRef>
+            </defaultOperationPolicy>
+
+        </objectType>
+
+    </schemaHandling>
+
+    <projection>
+        <!-- In midPoint terminology, every account exists because there is an assignment that justifies its existence -->
+        <!-- this tells midpoint not to delete the account if no use has it -->
+        <assignmentPolicyEnforcement>none</assignmentPolicyEnforcement>
+    </projection>
+
+</resource>
