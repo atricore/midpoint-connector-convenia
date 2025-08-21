@@ -1,4 +1,4 @@
-# Convenia Midpoint Connector
+# Convenia midPoint Connector
 
 A ConnId connector for integrating [Convenia](https://convenia.com.br/) HR system with [Evolveum MidPoint](https://evolveum.com/midpoint/). This connector enables synchronization of employee data, organizational structure, and job information between Convenia and MidPoint.
 
