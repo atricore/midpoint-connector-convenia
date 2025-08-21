@@ -14,7 +14,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write  # for creating releases
       packages: write  # for publishing to GitHub Packages
@@ -38,6 +38,30 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      # Add Maven settings.xml configuration for GitHub Packages
+      - name: Create Maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << EOF
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                        https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <servers>
+              <server>
+                <id>github</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+              <server>
+                <id>github-atricore</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
       - name: Get version from tag or input
         id: version
         run: |
@@ -60,6 +84,8 @@ jobs:
 
       - name: Run tests
         run: mvn clean test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and publish to GitHub Packages
         run: mvn clean deploy -DskipTests
@@ -94,14 +120,14 @@ jobs:
           prerelease: false
           body: |
             ## midPoint GCP Connector ${{ steps.version.outputs.version }}
-            
+
             ### Installation
-            
+
             #### Option 1: Download JAR (Traditional)
             1. Download the `connector-gcp-*.jar` file from the assets below
             2. Copy it to your midPoint's `icf-connectors` directory
             3. Restart midPoint
-            
+
             #### Option 2: Maven Dependency
             Add to your `pom.xml`:
             ```xml
@@ -111,14 +137,14 @@ jobs:
                     <url>https://maven.pkg.github.com/YOUR_USERNAME/YOUR_REPO_NAME</url>
                 </repository>
             </repositories>
-            
+
             <dependency>
                 <groupId>YOUR_GROUP_ID</groupId>
                 <artifactId>connector-gcp</artifactId>
                 <version>${{ steps.version.outputs.version }}</version>
             </dependency>
             ```
-            
+
             Note: GitHub Packages requires authentication. Add your GitHub credentials to `~/.m2/settings.xml`:
             ```xml
             <servers>
@@ -129,13 +155,13 @@ jobs:
                 </server>
             </servers>
             ```
-            
+
             ### Compatibility
             - Built with Java 17
             - midPoint 4.8+
             - Java 17, 21
             - Google Cloud SDK v26.34.0
-            
+
             ### Files in this release
             - `connector-gcp-*.jar` - Main connector JAR file
             - `README.md` - Documentation
