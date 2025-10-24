@@ -108,7 +108,7 @@
         <dependency>
             <groupId>net.tirasa.connid</groupId>
             <artifactId>connector-framework</artifactId>
-            <version>1.5.1.10</version>
+            <version>1.6.1.0</version>
         </dependency>
 
         <!-- Avoid dependency on slf4j-jdk14 SLF4J bridge.
